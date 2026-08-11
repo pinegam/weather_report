@@ -1,0 +1,17 @@
+.status-message {
+  margin: 0;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  max-width: 28rem;
+  width: 100%;
+}
+
+.status-message--loading {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--text);
+}
+
+.status-message--error {
+  background: color-mix(in srgb, #c0392b 12%, transparent);
+  color: #c0392b;
+}

@@ -1,0 +1,16 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# 개발 서버 proxy와 동일: CORS 회피용 API 프록시
+[[redirects]]
+  from = "/kma-api/*"
+  to = "https://apihub.kma.go.kr/:splat"
+  status = 200
+  force = true
+
+# SPA fallback
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
