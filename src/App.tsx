@@ -5,7 +5,7 @@ import { useWeather } from './hooks/useWeather'
 import './App.css'
 
 function App() {
-  const { weather, status, error, search } = useWeather()
+  const { weather, status, error, search, searchByLocation } = useWeather()
 
   return (
     <div className="app">
@@ -14,7 +14,11 @@ function App() {
         <p>기상청 지상관측 자료로 도시 날씨를 조회합니다.</p>
       </header>
 
-      <SearchBar onSearch={search} disabled={status === 'loading'} />
+      <SearchBar
+        onSearch={search}
+        onLocate={searchByLocation}
+        disabled={status === 'loading'}
+      />
 
       {status === 'loading' && (
         <StatusMessage type="loading" message="관측 자료를 불러오는 중..." />

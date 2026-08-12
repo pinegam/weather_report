@@ -1,6 +1,7 @@
 import { weatherClient } from './client'
 import {
   KMA_SFCTM2_PATH,
+  findNearestStation,
   findStation,
   type Station,
 } from '../constants'
@@ -37,19 +38,7 @@ function toWeatherData(station: Station, text: string): WeatherData {
   }
 }
 
-/** 도시명(또는 지점명)으로 현재 관측 조회 */
-export async function fetchWeatherByCity(city: string): Promise<WeatherData> {
-  if (!city.trim()) {
-    throw new Error('도시명을 입력해 주세요.')
-  }
-
-  const station = findStation(city)
-  if (!station) {
-    throw new Error(
-      '지원하지 않는 도시입니다. 예: 서울, 부산, 대구, 인천, 광주, 대전, 제주',
-    )
-  }
-
+async function fetchWeatherByStation(station: Station): Promise<WeatherData> {
   if (!import.meta.env.VITE_WEATHER_API_KEY) {
     throw new Error('API 키가 설정되지 않았습니다. .env를 확인해 주세요.')
   }
@@ -64,4 +53,29 @@ export async function fetchWeatherByCity(city: string): Promise<WeatherData> {
   })
 
   return toWeatherData(station, data)
+}
+
+/** 도시명(또는 지점명)으로 현재 관측 조회 */
+export async function fetchWeatherByCity(city: string): Promise<WeatherData> {
+  if (!city.trim()) {
+    throw new Error('도시명을 입력해 주세요.')
+  }
+
+  const station = findStation(city)
+  if (!station) {
+    throw new Error(
+      '지원하지 않는 도시입니다. 예: 서울, 부산, 대구, 인천, 광주, 대전, 제주',
+    )
+  }
+
+  return fetchWeatherByStation(station)
+}
+
+/** 위·경도 기준 최근접 관측 지점 날씨 조회 */
+export async function fetchWeatherByCoords(
+  lat: number,
+  lon: number,
+): Promise<WeatherData> {
+  const station = findNearestStation(lat, lon)
+  return fetchWeatherByStation(station)
 }

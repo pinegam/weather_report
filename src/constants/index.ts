@@ -8,5 +8,5 @@ export const KMA_SFCTM2_PATH = '/api/typ01/url/kma_sfctm2.php'
 
 export const DEFAULT_CITY = '서울'
 
-export { STATIONS, findStation } from './stations'
+export { STATIONS, findStation, findNearestStation } from './stations'
 export type { Station } from './stations'

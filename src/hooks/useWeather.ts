@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { fetchWeatherByCity } from '../api/weather'
+import {
+  fetchWeatherByCity,
+  fetchWeatherByCoords,
+} from '../api/weather'
 import { DEFAULT_CITY } from '../constants'
 import type { WeatherData, WeatherStatus } from '../types/weather'
+import { getCurrentPosition } from '../utils/geo'
 import axios from 'axios'
 
 interface UseWeatherResult {
@@ -9,6 +13,7 @@ interface UseWeatherResult {
   status: WeatherStatus
   error: string | null
   search: (city: string) => Promise<void>
+  searchByLocation: () => Promise<void>
 }
 
 function getErrorMessage(err: unknown): string {
@@ -27,12 +32,12 @@ export function useWeather(initialCity = DEFAULT_CITY): UseWeatherResult {
   const [status, setStatus] = useState<WeatherStatus>('idle')
   const [error, setError] = useState<string | null>(null)
 
-  const search = useCallback(async (city: string) => {
+  const run = useCallback(async (loader: () => Promise<WeatherData>) => {
     setStatus('loading')
     setError(null)
 
     try {
-      const data = await fetchWeatherByCity(city)
+      const data = await loader()
       setWeather(data)
       setStatus('success')
     } catch (err) {
@@ -42,9 +47,23 @@ export function useWeather(initialCity = DEFAULT_CITY): UseWeatherResult {
     }
   }, [])
 
+  const search = useCallback(
+    async (city: string) => {
+      await run(() => fetchWeatherByCity(city))
+    },
+    [run],
+  )
+
+  const searchByLocation = useCallback(async () => {
+    await run(async () => {
+      const { lat, lon } = await getCurrentPosition()
+      return fetchWeatherByCoords(lat, lon)
+    })
+  }, [run])
+
   useEffect(() => {
     void search(initialCity)
   }, [initialCity, search])
 
-  return { weather, status, error, search }
+  return { weather, status, error, search, searchByLocation }
 }
